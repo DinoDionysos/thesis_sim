@@ -1,0 +1,48 @@
+
+# --- Common Parameters for the Costmap package (costmap_2d)
+# see Sec. 2.3.1: http://wiki.ros.org/navigation/Tutorials/RobotSetup  
+
+obstacle_range: 8.5  # the max range to consider obstacles.
+raytrace_range: 9  # the raytracing range for the freespace
+
+# dimensios of the Taurob robot (assume 1.8m x 1m and origin is in center)
+# order: clockwise, starting from bottom left vertex of footprint
+# footprint: [[-0.2, -0.2], [-0.2, 0.2], [0.2, 0.2], [0.2, -0.2]]
+footprint: [[-0.6, -0.35], [-0.6, 0.35], [0.6, 0.35], [0.6, -0.35]]
+footprint_padding: 0.1
+
+inflation_radius: 0.3
+cost_scaling_factor: 3.0
+
+# the plugins required by the navigation stack
+
+plugins: 
+  - name: static_map
+    type: "costmap_2d::StaticLayer"
+  - name: obstacles
+    type: "costmap_2d::ObstacleLayer"
+  - name: inflation_layer
+    type: "costmap_2d::InflationLayer"
+
+obstacle_layer:
+  track_unknown_space: true
+
+
+# there are two row-LiDAR sensors, one on the front and one on the back
+observation_sources:
+  - laser_scan_front
+  - laser_scan_rear
+# define the properties of the front-facing row-LiDAR
+laser_scan_front:
+  sensor_frame: /laser_scan_front_frame
+  data_type: LaserScan
+  topic: /taurob_tracker/laser_scan_front
+  marking: true
+  clearing: true
+# define the properties of the rear-facing row-LiDAR
+laser_scan_rear:
+  sensor_frame: /laser_scan_rear_frame
+  data_type: LaserScan
+  topic: /taurob_tracker/laser_scan_rear
+  marking: true
+  clearing: true

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <!-- whether to run counter-clockwise (true) or clockwise (false) -->
+    <arg name="dir_ccw" default="true" />
+    <arg name="eval" default="false" />
+    <arg name="gui" default="false" />
+    <arg name="rviz" default="true" />
+    <arg name="gpu" default="true" />
+    <!-- if the linear controller should also be launched -->
+    <arg name="linear_ctrl" default="false" />
+    <!-- if the Search And Rescue (SAR) world should be used -->
+    <arg name="sar_world" default="true" />
+    <!-- the rviz config file -->
+    <arg name="rviz_config_filename" default="gpr_loc_wsl_sim.rviz" />
+    <!-- set the starting pose according to the world -->
+    <arg if="$(eval arg('sar_world'))" name="x_pos" default="15.0" /> <!-- 4.5 (fhtw_world)-->
+    <arg if="$(eval arg('sar_world'))" name="y_pos" default="3.8" /> <!-- 3.5 (fhtw_world)-->
+    <arg if="$(eval arg('sar_world'))" name="yaw" default="0.0" />
+    <arg unless="$(eval arg('sar_world'))" name="x_pos" default="0" />
+    <arg unless="$(eval arg('sar_world'))" name="y_pos" default="0" />
+    <arg unless="$(eval arg('sar_world'))" name="yaw" default="0" />
+    <!-- launch the world -->
+    <include file="$(find gpr_loc_bringup)launch/include/training_world.launch">
+        <arg name="sar_world" value="$(arg sar_world)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="gpu" value="$(arg gpu)" />
+        <arg name="use_sim_time" value="true" /> <!-- um timing probleme zu vermeiden -->
+        <arg name="paused" value="false" />
+        <arg name="x_pos" value="$(arg x_pos)" />
+        <arg name="y_pos" value="$(arg y_pos)" />
+        <arg name="yaw" value="$(arg yaw)" />
+    </include>
+    <!-- Start the Ground Truth TF publisher Node-->
+    <remap from="/p3d_tf_broadcaster_node/ground_truth/odom" to="/ground_truth/odom" />
+    <node pkg="gpr_loc_bringup" type="gpr_loc_bringup_p3d_tf_broadcaster_node"
+        name="p3d_tf_broadcaster_node" />
+    <!-- static TF that puts odom onto base_link -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_footprint_onto_base_link"
+        args="0 0 0 0 0 0 /base_footprint /base_link" />
+    <!-- Start Controller -->
+    <include file="$(find gpr_loc_bringup)/launch/include/taurob_tracker_control.launch" />
+    <!-- Start Rviz -->
+    <node if="$(eval arg('rviz'))" name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find gpr_loc_bringup)/config/$(arg rviz_config_filename)" />
+    <!-- load the linear controller, passing both the flag for evaluation and the desired direction
+    for training run, if the linear_ctrl arg is set to 'true' -->
+    <include if="$(eval arg('linear_ctrl'))"
+        file="$(find gpr_loc_bringup)/launch/include/linear_controller.launch">
+        <arg name="eval" value="$(arg eval)" />
+        <arg name="dir_ccw" value="$(arg dir_ccw)" />
+    </include>
+    <!--Start Teleop if not linear controller -->
+    <node unless="$(eval arg('linear_ctrl'))" name="taurob_teleop_node" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen" launch-prefix="xterm -e" args="_speed:=1.0 _turn:=1.1">
+        <remap from="/cmd_vel" to="/taurob_tracker/cmd_vel_raw" />
+    </node>
+    <!-- static TF for realsense depth cam -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="realsense_depth"
+        args="0 0 0 -1.57 0 -1.57 /realsense_rgbd_link /realsense_rgbd_depth_optical_frame" /> -->
+
+    <!-- Realsense d435 -->
+    <arg name="realsense_d435_name" default="realsense_d435" />
+    <!-- static transforms for realsense d435 frames -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="$(arg realsense_d435_name)_color_frame_pub" args="0 0.015 0 0 0 0 /$(arg realsense_d435_name)_link /$(arg realsense_d435_name)_color_frame" /> 
+    <node pkg="tf2_ros" type="static_transform_publisher" name="$(arg realsense_d435_name)_cam_color_optical_frame_pub" args="0 0 0 -1.57 0 -1.57  /$(arg realsense_d435_name)_color_frame /$(arg realsense_d435_name)_color_optical_frame" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="$(arg realsense_d435_name)_depth_frame_pub" args="0 0 0 0 0 0 /$(arg realsense_d435_name)_link /$(arg realsense_d435_name)_depth_frame" /> 
+    <node pkg="tf2_ros" type="static_transform_publisher" name="$(arg realsense_d435_name)_depth_optical_frame_pub" args="0 0 0 -1.57 0 -1.57  /$(arg realsense_d435_name)_depth_frame /$(arg realsense_d435_name)_depth_optical_frame" /> 
+
+</launch>

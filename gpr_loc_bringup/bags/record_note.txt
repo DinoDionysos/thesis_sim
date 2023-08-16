@@ -1,0 +1,3 @@
+use this regex to subscribe to all topics except camera/cameraInfo/image topics:
+
+^(?!.*(camera|image)).*$

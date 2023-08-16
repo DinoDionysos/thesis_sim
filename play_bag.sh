@@ -1,0 +1,1 @@
+rosbag play --pause bagfiles/rosbagfile_2023-06-26-18-52-51.bag

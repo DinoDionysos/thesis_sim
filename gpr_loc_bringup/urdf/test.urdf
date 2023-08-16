@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<link name="base_footprint_test"/>
+
+<robot name="robot_name">
+    <link name="link_name">
+        <visual>
+            <geometry>
+                <box size="1.0 1.0 2.0" />
+            </geometry>
+            <material name="LightGrey">
+                <color rgba="1.0 0.0 0.0 1.0"/>
+            </material>
+        </visual>
+    </link>
+</robot>
+
+
+<joint name="joint_name" type="fixed">
+    <parent link="base_footprint_test"/>
+    <child link="link_name"/>
+    <origin xyz="0.0 0.0 0.135" rpy="0.0 0.0 0.0"/>
+</joint>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+    <param name="robot_description" textfile="$(find gpr_loc_bringup)/urdf/test.urdf"/>
+    <arg name="rviz_config_file" default="$(find gpr_loc_bringup)/config/test_urdf.rviz"/>
+    
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    </node>
+    <!--
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">
+    </node>
+    -->
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config_file)">
+    </node>
+
+</launch>
