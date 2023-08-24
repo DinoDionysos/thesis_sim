@@ -262,7 +262,8 @@
     <origin xyz="0.0 0.00 0.0" rpy="0 0 0" />
   </xacro:generic_stereo_camera>
 
-  <!-- Realsense d435 --><arg name="realsense_d435_name" default="realsense_d435" />
+  <!-- Realsense d435 -->
+  <arg name="realsense_d435_name" default="realsense_d435" />
   <xacro:realsense_d435_camera name="realsense_d435" parent="camera_mount">
     <origin xyz="-0.1575 0.00 0.00" rpy="0 0 0" />
   </xacro:realsense_d435_camera>
@@ -350,16 +351,16 @@
   <gazebo>
     <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
       <alwaysOn>true</alwaysOn>
-      <!-- update rate of the topic should exceed that of all sensor measurements -->
+      <!-- frequency of capturing of ground truth -->
       <updateRate>50.0</updateRate>
-      <!-- the name of the link on which EKF/VIO/LIO estimates are made -->
+      <!-- link where the ground truth is recorded -->
       <bodyName>camera_mount</bodyName>
-      <!-- name of the ROS topic to publish ground truth to -->
+      <!-- grpund truth ROS topic -->
       <topicName>ground_truth/odom</topicName>
       <!-- name of the frame used to reference odometry towards -->
       <!-- or the name of the frame represented by it in gazebo! -->
       <frameName>world</frameName>
-      <!-- ground truth should not contain any offsets or -->
+      <!-- no offset or noise for ground truth -->
       <xyzOffsets>0 0 0</xyzOffsets>
       <rpyOffsets>0 0 0</rpyOffsets>
       <gaussianNoise>0</gaussianNoise>
